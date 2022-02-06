@@ -1,0 +1,30 @@
+Sekarang node admin-00 disini akan saya jadikan sebagai klien untuk mengakses layanan ceph file system. Agar komputer admin-00 dapat mengakses layanan ceph file system
+
+silahkan teman-teman copy keyringnya masukan kedalam file baru bernama admin.secret
+
+ceph.client.admin.keyring 
+
+[client.admin]
+	key = *AQC8KnxfhuvIExAAUVqWF9R7WsAftYcXRzApRA==* #hanya yang dibintangi saja
+	caps mds = "allow *"
+	caps mgr = "allow *"
+	caps mon = "allow *"
+	caps osd = "allow *"
+
+
+user@admin-00:~$ sudo apt-get install ceph-common ceph-fuse
+
+1. buat folder yang ingin di mounting 
+
+2. Melakukan mounting layana ceph file system ke komputer client
+
+user@admin-00:~$ sudo mount -t ceph node-00:6789:/ /home/user/cfs/ -o name=admin,secretfile=/home/user/sandbox-ceph/admin.secret
+
+3. Cek mountingan tadi 
+
+user@admin-00:~$ df -h #seharusnya sudah ada mountingan dari ip node-00
+
+4. ubah permission folder 
+
+user@admin-00:~$ chmod 777 folder 
+

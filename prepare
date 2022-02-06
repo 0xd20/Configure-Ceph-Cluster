@@ -1,0 +1,76 @@
+Sebelumnya saya buat user bernama cephuser
+
+1. Memetakan dahulu antara alamat IP dengan hostname seluruh komputer anggota ceph cluster ke dalam komputer admin-00.
+
+cephuser@admin-00:~$ sudo vim /etc/hosts
+
+192.168.0.1 admin-00
+192.168.0.10 node-00
+192.168.0.11 node-01
+192.168.0.12 node-02
+
+2. Melakukan ssh-keygen di admin-00 lalu keynya di copy ke seluru node yang tergabung pada cluster, langkah ini bertujuan supaya admin-00 ketika melakukan remote ke node-00 node-01 dan node-02 tidak dimintai password
+
+cephuser@admin-00:~$ sudo ssh-keygen
+cephuser@admin-00:~$ sudo ssh-copy-id node-00
+cephuser@admin-00:~$ sudo ssh-copy-id node-01
+cephuser@admin-00:~$ sudo ssh-copy-id node-02
+
+3. Membuat file config di dalam folder .ssh (yang berisi keygen) untuk memetakan user yang akan ceph gunakan sebagai user untuk remote login ssh ke seluruh komputer cluster.
+
+cephuser@admin-00:~$ vim .ssh/config (yang berisi key)
+
+Host admin-00
+    Hostname admin-00
+    User cephuser
+
+Host node-00
+    Hostname node-00
+    User cephuser
+
+Host node-01
+    Hostname node-01
+    User cephuser
+
+Host admin-02
+    Hostname node-02
+    User cephuser
+
+4. ping dan ujicoba ssh
+
+cephuser@admin-00:~$ ping node-00
+cephuser@admin-00:~$ ping node-01
+cephuser@admin-00:~$ ping node-02
+
+cephuser@admin-00:~$ ssh node-00 #disini seharusnya teman-teman sudah bisa masuk kedalam sistem node-00 menggunakan user cephuser
+cephuser@admin-00:~$ ssh node-01
+cephuser@admin-00:~$ ssh node-02
+
+5. Ada 2 syarat yang harus dipenuhi pada user yang digunakan untuk membangun ceph cluster:
+
+- User yang digunakan pada setiap anggota ceph cluster harus bisa menggunakan sudo. (masuk group sudo)
+- User yang bisa menggunakan sudo tidak perlu memasukkan password sama sekali, seperti ketika masuk menggunakan SSH. (edit visudo)
+
+6. Melakukan instalasi aplikasi deployment di dalam komputer admin-00 dan seluruh komputer ceph cluster dan Pada komputer admin-00 kita perlu menambahkan repository ceph versi nautilus
+
+7. Menambahkan key repository
+
+cephuser@admin-00:~$ wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+
+8. Membuat repository list ceph di dalam system
+
+cephuser@admin-00:~$ echo deb https://download.ceph.com/debian-nautilus/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
+
+9. Mengupdate list repository
+
+cephuser@admin-00:~$ sudo apt-get update
+
+10. Menginstall aplikasi ceph-deploy
+
+cephuser@admin-00:~$ sudo apt-get install ceph-deploy
+
+11. Menginstall aplikasi python-minimal ke dalam seluruh komputer anggota ceph cluster dari komputer admin-00
+
+cephuser@admin-00:~$ ssh node-00 sudo apt-get install python-minimal
+cephuser@admin-00:~$ ssh node-01 sudo apt-get install python-minimal
+cephuser@admin-00:~$ ssh node-02 sudo apt-get install python-minimal

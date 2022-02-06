@@ -1,0 +1,11 @@
+Nah Skerang teamn-teman bisa monitori via web base ceph, silahkan ikuti perintah berikut. Installnya di node-00 selaku mgr 
+
+sudo apt-get install ceph-mgr-dashboard
+
+sudo ceph mgr module enable dashboard
+
+sudo ceph dashboard ac-user-create admin 123456789 administrator
+
+sudo ceph dashboard create-self-signed-cert
+
+sudo ceph mgr services

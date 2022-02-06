@@ -1,0 +1,20 @@
+Untuk membangun layanan Ceph File System,  
+saya membutuhkan satu buah layanan yang mengelola metadata file yang akan disimpan di dalam ceph clsuter yang disebut metadata server. 
+Metadata Server ini rencananya akan saya install di Node-00.
+
+user@admin-00:~/ceph-store$ ceph-deploy mds create node-00
+
+1. mengkonfigurasi node-00 sebagai metadata server, 
+kemudian setelah itu saya akan membuat pool data dan pool metadata di node-00 selaku server metadata. 
+Pool data  dan pool metadata ini yang akan digunakan ceph cluster untuk menampung seluruh data yang disimpan di dalam cluster. 
+
+user@admin-00:~/ceph-store$ ssh node-00 sudo ceph osd pool create cephfs_data 128 # create pool data
+user@admin-00:~/ceph-store$ ssh node-00 sudo ceph osd pool create cephfs_metadata 8 # create pool metadata
+
+2. Menggabungkan kedua pool tersebut dalam satu layanan ceph file system
+
+user@admin-00:~/ceph-store$ ssh node-00 sudo ceph fs new cephfs cephfs_metadata cephfs_data
+
+3. cek hasil
+
+user@admin-00:~/ceph-store$ ssh node-00 sudo ceph -s

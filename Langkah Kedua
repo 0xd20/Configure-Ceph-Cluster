@@ -1,0 +1,59 @@
+Agar nanti seluruh konfigurasi tersimpan secara terstruktur disini saya membuat sebuah folder bernama ceph-store
+
+cephuser@admin-00:~$ mkdir ceph-store
+cephuser@admin-00:~$ cd ceph-store
+
+1. Mulai menginstall aplikasi ceph, ada beberapa cara untuk menginstall aplikasi ceph cluster, berikut ini diantaranya:
+
+- cephadmin (untuk versi terbaru seperti versi Octopus)
+- ceph-deploy (untuk versi nautilus dan di bawahnya)
+- rook (untuk install ceph di Kubernetes)
+- ceph-ansible
+- juju
+- salt
+- puppet
+- dan install secara manual
+
+2. Melakukan inisiasi node-00 sebagai monitor dan setelah melkukan itu kita menemukan 3 file.
+
+cephuser@admin-00:~/ceph-store$ ceph-deploy new node-00
+
+- ceph-deploy-ceph.log
+- ceph.conf
+- ceph.mon.keyring
+
+3. Menginstall seluruh aplikasi ceph di dalam node-00, node-01, node-02 serta mendaftarkan mereka sebagai anggota ceph cluster.
+
+cephuser@admin-00:~/ceph-store$ ceph-deploy install --release nautilus node-00 node-01 node-02
+
+4. Membuat keyring pada monitor server yang nanti akan didistribusikan ke seluruh anggota ceph cluster untuk keperluan monitoring oleh server monitor. 
+
+cephuser@admin-00:~/ceph-store$ ceph-deploy mon create-initial
+
+5. keyring yang telah dibuat akan didistribusikan ke seluruh anggota ceph cluster. Keyring tersebut berfungsi untuk mempermudah penggunaan perintah untuk mengoperasional cluster ceph.
+
+cephuser@admin-00:~/ceph-store$ ceph-deploy admin node-00 node-01 node-02
+
+6. instalasi manager daemon di node-00
+
+cephuser@admin-00:~/ceph-store$ ceph-deploy mgr create node-00
+
+7. Untuk bagian storage yang akan digunakan sebagai server OSD di ketiga node tersebut, saya menyediakan kapasitas yang bervariasi.
+
+node-00 : 20GB
+node-01 : 20GB
+node-02 : 20GB
+
+8. lakukan partisi
+
+menggunakan fdisk
+
+9. Mendaftarkan ketiga node tersebut sebagai server OSD dengan /dev/sdb1 yang akan dipakai, pada komputer admin-00 saya menjalankan perintah: (seterah mau dev/ apa ajah)
+
+user@admin-00:~/ceph-store$ ceph-deploy osd create --data /dev/sdb1 node-00
+user@admin-00:~/ceph-store$ ceph-deploy osd create --data /dev/sdb1 node-01
+user@admin-00:~/ceph-store$ ceph-deploy osd create --data /dev/sdb1 node-02
+
+10. untuk mengecek apakah instalasi ceph sudah benar
+
+user@admin-00:~/ceph-store$ ssh node-00 sudo ceph -s
